@@ -4,17 +4,16 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"net/http"
-	"os"
 
-	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
+	"github.com/op/go-logging"
 )
 
 var (
-	log     = logrus.New()
 	db, err = sql.Open("mysql", mysql)
+	log     = logging.MustGetLogger("example")
 )
 
 type ErrorJson struct {
@@ -22,7 +21,6 @@ type ErrorJson struct {
 }
 
 func main() {
-	log.Out = os.Stdout
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
