@@ -16,7 +16,7 @@ var (
 	db, err = sql.Open("mysql", mysql)
 	log     = logging.MustGetLogger("example")
 	format  = logging.MustStringFormatter(
-		`%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`,
+		`%{color}%{time:2006-01-02T15:04:05+00:00} %{level:.4s} %{color:reset} %{message}`,
 	)
 )
 
