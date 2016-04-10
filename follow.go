@@ -17,10 +17,12 @@ const (
 	DateTime = "2006-01-2 15:04:05"
 )
 
+// TwitchFollowage json for the followage response from twitch
 type TwitchFollowage struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// Followage basic json for the followage reponse
 type Followage struct {
 	CreatedAt string `json:"created_at"`
 	Timestamp string `json:"timestamp"`
@@ -40,7 +42,7 @@ func getFollowage(c echo.Context) error {
 
 	timestamp, err := time.Parse(UTCtimestamp, followage.CreatedAt)
 	if err != nil {
-		fail := new(ErrorJson)
+		fail := new(ErrorJSON)
 		fail.Error = "not following"
 		return c.JSON(404, fail)
 	}

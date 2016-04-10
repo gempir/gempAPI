@@ -46,6 +46,34 @@ func getLastMessage(c echo.Context) error {
 	return c.JSON(http.StatusOK, quote)
 }
 
+func getLastGlobalMessage(c echo.Context) error {
+	username := c.Param("username")
+
+	rows, err := db.Query("SELECT channel, timestamp, username, message  FROM chatlogs WHERE username = ? ORDER BY timestamp DESC LIMIT 1", username)
+	checkErr(err)
+
+	quote := new(Quote)
+
+	for rows.Next() {
+		var channel string
+		var timestamp string
+		var username string
+		var message string
+		err = rows.Scan(&channel, &timestamp, &username, &message)
+		checkErr(err)
+		quote.Channel = channel
+		quote.Timestamp = timestamp
+		timeparsed, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		quote.Duration = formatDiff(diff(timeparsed, time.Now()))
+		quote.Username = username
+		quote.Message = message
+	}
+
+	defer rows.Close()
+	return c.JSON(http.StatusOK, quote)
+}
+
 func getRandomquote(c echo.Context) error {
 
 	channel := c.Param("channel")

@@ -20,7 +20,8 @@ var (
 	)
 )
 
-type ErrorJson struct {
+// ErrorJSON simple json for default error response
+type ErrorJSON struct {
 	Error string `json:"Error"`
 }
 
@@ -35,7 +36,9 @@ func main() {
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
+	e.Get("/v1/user/:username/messages/last", getLastGlobalMessage)
 	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
+
 	log.Info("starting webserver on 1323")
 	e.Run(standard.New(":1323"))
 }
@@ -45,15 +48,14 @@ func httpRequest(url string) ([]byte, error) {
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
-	} else {
-		defer response.Body.Close()
-		contents, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			log.Error(err)
-			return nil, err
-		}
-		return contents, nil
 	}
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return contents, nil
 }
 
 func checkErr(err error) {
