@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -11,23 +12,29 @@ import (
 	"github.com/labstack/echo/engine/standard"
 )
 
-var db, err = sql.Open("mysql", "root:root@tcp(192.168.178.74:3306)/gempbot")
+var db, err = sql.Open("mysql", mysql)
 
 func main() {
 	log.SetOutput(os.Stdout)
-	connectDB()
 	e := echo.New()
-	e.Get("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, World!")
-	})
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
-
-	defer e.Run(standard.New(":1323"))
+	e.Get("/v1/twitch/channel/:channel/user/:username/followage", getFollowage)
+	e.Run(standard.New(":1323"))
 }
 
-func connectDB() {
-	checkErr(err)
+func httpRequest(url string) ([]byte, error) {
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	} else {
+		defer response.Body.Close()
+		contents, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			return nil, err
+		}
+		return contents, nil
+	}
 }
 
 func checkErr(err error) {
