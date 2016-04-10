@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
@@ -14,6 +15,9 @@ import (
 var (
 	db, err = sql.Open("mysql", mysql)
 	log     = logging.MustGetLogger("example")
+	format  = logging.MustStringFormatter(
+		`%{color}%{time:15:04:05.000} %{shortfunc} ▶ %{level:.4s} %{id:03x}%{color:reset} %{message}`,
+	)
 )
 
 type ErrorJson struct {
@@ -21,6 +25,13 @@ type ErrorJson struct {
 }
 
 func main() {
+	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
+	backend2 := logging.NewLogBackend(os.Stderr, "", 0)
+	backend2Formatter := logging.NewBackendFormatter(backend2, format)
+	backend1Leveled := logging.AddModuleLevel(backend1)
+	backend1Leveled.SetLevel(logging.ERROR, "")
+	logging.SetBackend(backend1Leveled, backend2Formatter)
+
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
@@ -30,6 +41,7 @@ func main() {
 }
 
 func httpRequest(url string) ([]byte, error) {
+	log.Debugf("httpRequest %s", url)
 	response, err := http.Get(url)
 	if err != nil {
 		return nil, err
