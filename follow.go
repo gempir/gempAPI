@@ -19,9 +19,9 @@ type TwitchFollowage struct {
 }
 
 type Followage struct {
-	CreatedAt string `json:"Created_at"`
-	Timestamp string `json:"Timestamp"`
-	Duration  string `json:"Duration"`
+	CreatedAt string `json:"created_at"`
+	Timestamp string `json:"timestamp"`
+	Duration  string `json:"duration"`
 }
 
 func getFollowage(c echo.Context) error {
