@@ -14,12 +14,16 @@ import (
 
 var db, err = sql.Open("mysql", mysql)
 
+type ErrorJson struct {
+	Error string `json:"Error"`
+}
+
 func main() {
 	log.SetOutput(os.Stdout)
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
-	e.Get("/v1/twitch/channel/:channel/user/:username/followage", getFollowage)
+	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
 	e.Run(standard.New(":1323"))
 }
 

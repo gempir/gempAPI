@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -38,8 +37,9 @@ func getFollowage(c echo.Context) error {
 
 	timestamp, err := time.Parse(UTCtimestamp, followage.CreatedAt)
 	if err != nil {
-		log.Println(err)
-		return nil
+		fail := new(ErrorJson)
+		fail.Error = "not following"
+		return c.JSON(404, fail)
 	}
 	followage.Timestamp = timestamp.Format("2006-01-02 15:04:05")
 
