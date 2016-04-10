@@ -25,8 +25,8 @@ type ErrorJson struct {
 }
 
 func main() {
-	backend1 := logging.NewLogBackend(os.Stderr, "", 0)
-	backend2 := logging.NewLogBackend(os.Stderr, "", 0)
+	backend1 := logging.NewLogBackend(os.Stdout, "", 0)
+	backend2 := logging.NewLogBackend(os.Stdout, "", 0)
 	backend2Formatter := logging.NewBackendFormatter(backend2, format)
 	backend1Leveled := logging.AddModuleLevel(backend1)
 	backend1Leveled.SetLevel(logging.ERROR, "")
