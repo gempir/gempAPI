@@ -11,7 +11,10 @@ import (
 )
 
 const (
+	// UTCtimestamp for time.Parse
 	UTCtimestamp = "2006-01-02T15:04:05-07:00"
+	// DateTime for time.Parse out of the db
+	DateTime = "2006-01-2 15:04:05"
 )
 
 type TwitchFollowage struct {
@@ -99,7 +102,7 @@ func formatDiff(years, months, days, hours, mins, secs int) string {
 			break
 		}
 	}
-	if secs > 0 && days == 0 && months == 0 && years == 0 {
+	if secs > 0 && days == 0 && months == 0 && years == 0 && hours == 0 {
 		switch secs {
 		case 1:
 			since += fmt.Sprintf("%d sec ", secs)
