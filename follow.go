@@ -152,6 +152,5 @@ func diff(a, b time.Time) (year, month, day, hour, min, sec int) {
 		month += 12
 		year--
 	}
-
 	return
 }

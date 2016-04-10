@@ -3,27 +3,31 @@ package main
 import (
 	"database/sql"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 
+	"github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 )
 
-var db, err = sql.Open("mysql", mysql)
+var (
+	log     = logrus.New()
+	db, err = sql.Open("mysql", mysql)
+)
 
 type ErrorJson struct {
 	Error string `json:"Error"`
 }
 
 func main() {
-	log.SetOutput(os.Stdout)
+	log.Out = os.Stderr
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
 	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
+	log.Info("starting webserver on 1323")
 	e.Run(standard.New(":1323"))
 }
 
@@ -35,6 +39,7 @@ func httpRequest(url string) ([]byte, error) {
 		defer response.Body.Close()
 		contents, err := ioutil.ReadAll(response.Body)
 		if err != nil {
+			log.Error(err)
 			return nil, err
 		}
 		return contents, nil
@@ -43,7 +48,7 @@ func httpRequest(url string) ([]byte, error) {
 
 func checkErr(err error) {
 	if err != nil {
-		panic(err)
+		log.Error(err)
 	}
 }
 
@@ -77,8 +82,6 @@ func getLastMessage(c echo.Context) error {
 		quote.Username = username
 		quote.Message = message
 	}
-
-	log.Println(quote)
 
 	defer rows.Close()
 	return c.JSON(http.StatusOK, quote)
@@ -117,8 +120,6 @@ func getRandomquote(c echo.Context) error {
 		quote.Username = username
 		quote.Message = message
 	}
-
-	log.Println(quote)
 
 	defer rows.Close()
 	return c.JSON(http.StatusOK, quote)
