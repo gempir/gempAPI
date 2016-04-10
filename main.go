@@ -22,7 +22,7 @@ type ErrorJson struct {
 }
 
 func main() {
-	log.Out = os.Stderr
+	log.Out = os.Stdout
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
