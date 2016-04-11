@@ -190,9 +190,10 @@ func getGlobalLogs(c echo.Context) error {
 	limitInt, err := strconv.Atoi(limit)
 	checkErr(err)
 
-	if limitInt > 250 {
+	if limitInt > 250 || limitInt < 1 || err != nil {
 		limit = "250"
 	}
+
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
         FROM chatlogs
