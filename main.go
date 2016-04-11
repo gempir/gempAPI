@@ -37,6 +37,7 @@ func main() {
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
 	e.Get("/v1/user/:username/messages/last", getLastGlobalMessage)
+	e.Get("/v1/channel/:channel/user/:username/messages/last/:limit", getLogs)
 	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
 
 	log.Info("starting webserver on 1323")

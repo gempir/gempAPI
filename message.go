@@ -2,9 +2,11 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/labstack/echo"
+	_ "github.com/labstack/gommon/log"
 )
 
 // Quote basic response
@@ -110,4 +112,66 @@ func getRandomquote(c echo.Context) error {
 
 	defer rows.Close()
 	return c.JSON(http.StatusOK, quote)
+}
+
+// Logs basic logs response
+type Logs struct {
+	Messages []Msg `json:"messages"`
+}
+
+// Msg struct to define a simple message
+type Msg struct {
+	Message   string `json:"message"`
+	Timestamp string `json:"timestamp"`
+	Duration  string `json:"duration"`
+	Channel   string `json:"channel"`
+	Username  string `json:"username"`
+}
+
+func getLogs(c echo.Context) error {
+
+	channel := c.Param("channel")
+	username := c.Param("username")
+	limit := c.Param("limit")
+	channel = "#" + channel
+	limitInt, err := strconv.Atoi(limit)
+	checkErr(err)
+
+	if limitInt > 250 {
+		limit = "250"
+	}
+	log.Debug(channel, username, limit)
+	rows, err := db.Query(`
+        SELECT channel, timestamp, username, message
+        FROM chatlogs
+		WHERE channel = ?
+		AND username = ?
+		ORDER BY timestamp DESC
+		LIMIT ?`, channel, username, limit)
+	checkErr(err)
+
+	logs := new(Logs)
+
+	for rows.Next() {
+		var channel string
+		var timestamp string
+		var username string
+		var message string
+		err = rows.Scan(&channel, &timestamp, &username, &message)
+		checkErr(err)
+		msg := new(Msg)
+		msg.Channel = channel
+		msg.Timestamp = timestamp
+		msg.Username = username
+		msg.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		msg.Duration = formatDiff(diff(timeObj, time.Now()))
+
+		logs.Messages = append(logs.Messages, *msg)
+
+	}
+
+	defer rows.Close()
+	return c.JSON(http.StatusOK, logs)
 }
