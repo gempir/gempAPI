@@ -2,4 +2,5 @@ package main
 // rename this file to config.go and replace your configuration here
 const (
 	mysql = "user:password@tcp(127.0.0.1:3306)/database"
+	webserverPort = ":1323"
 )

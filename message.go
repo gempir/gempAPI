@@ -148,7 +148,6 @@ func getLogs(c echo.Context) error {
 	if limitInt > 250 {
 		limit = "250"
 	}
-	log.Debug(channel, username, limit)
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
         FROM chatlogs
@@ -156,6 +155,50 @@ func getLogs(c echo.Context) error {
 		AND username = ?
 		ORDER BY timestamp DESC
 		LIMIT ?`, channel, username, limit)
+	checkErr(err)
+
+	logs := new(Logs)
+
+	for rows.Next() {
+		var channel string
+		var timestamp string
+		var username string
+		var message string
+		err = rows.Scan(&channel, &timestamp, &username, &message)
+		checkErr(err)
+		msg := new(Msg)
+		msg.Channel = channel
+		msg.Timestamp = timestamp
+		msg.Username = username
+		msg.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		msg.Duration = formatDiff(diff(timeObj, time.Now()))
+		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
+
+		logs.Messages = append(logs.Messages, *msg)
+
+	}
+
+	defer rows.Close()
+	return c.JSON(http.StatusOK, logs)
+}
+
+func getGlobalLogs(c echo.Context) error {
+	username := c.Param("username")
+	limit := c.Param("limit")
+	limitInt, err := strconv.Atoi(limit)
+	checkErr(err)
+
+	if limitInt > 250 {
+		limit = "250"
+	}
+	rows, err := db.Query(`
+        SELECT channel, timestamp, username, message
+        FROM chatlogs
+		WHERE username = ?
+		ORDER BY timestamp DESC
+		LIMIT ?`, username, limit)
 	checkErr(err)
 
 	logs := new(Logs)
