@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/labstack/echo"
-	_ "github.com/labstack/gommon/log"
 )
 
 // Quote basic response
@@ -24,7 +23,7 @@ func getLastMessage(c echo.Context) error {
 	username := c.Param("username")
 	channel = "#" + channel
 
-	rows, err := db.Query("SELECT channel, timestamp, username, message  FROM chatlogs WHERE channel = ? AND username = ? ORDER BY timestamp DESC LIMIT 1", channel, username)
+	rows, err := db.Query("SELECT channel, timestamp, username, message  FROM gempLog WHERE channel = ? AND username = ? ORDER BY timestamp DESC LIMIT 1", channel, username)
 	checkErr(err)
 
 	quote := new(Quote)
@@ -53,7 +52,7 @@ func getLastMessage(c echo.Context) error {
 func getLastGlobalMessage(c echo.Context) error {
 	username := c.Param("username")
 
-	rows, err := db.Query("SELECT channel, timestamp, username, message  FROM chatlogs WHERE username = ? ORDER BY timestamp DESC LIMIT 1", username)
+	rows, err := db.Query("SELECT channel, timestamp, username, message  FROM gempLog WHERE username = ? ORDER BY timestamp DESC LIMIT 1", username)
 	checkErr(err)
 
 	quote := new(Quote)
@@ -87,9 +86,9 @@ func getRandomquote(c echo.Context) error {
 
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
-        FROM chatlogs AS r1 JOIN
+        FROM gempLog AS r1 JOIN
            (SELECT CEIL(RAND() *
-                (SELECT MAX(id) FROM chatlogs)) AS id)
+                (SELECT MAX(id) FROM gempLog)) AS id)
                 AS r2
         WHERE r1.id >= r2.id
         AND channel = ?
@@ -126,9 +125,9 @@ func getGlobalRandomquote(c echo.Context) error {
 
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
-        FROM chatlogs AS r1 JOIN
+        FROM gempLog AS r1 JOIN
            (SELECT CEIL(RAND() *
-                (SELECT MAX(id) FROM chatlogs)) AS id)
+                (SELECT MAX(id) FROM gempLog)) AS id)
                 AS r2
         WHERE r1.id >= r2.id
         AND username = ?
@@ -188,7 +187,7 @@ func getLogs(c echo.Context) error {
 	}
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
-        FROM chatlogs
+        FROM gempLog
 		WHERE channel = ?
 		AND username = ?
 		ORDER BY timestamp DESC
@@ -234,7 +233,7 @@ func getGlobalLogs(c echo.Context) error {
 
 	rows, err := db.Query(`
         SELECT channel, timestamp, username, message
-        FROM chatlogs
+        FROM gempLog
 		WHERE username = ?
 		ORDER BY timestamp DESC
 		LIMIT ?`, username, limit)
