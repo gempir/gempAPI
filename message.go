@@ -12,11 +12,11 @@ import (
 // Quote basic response
 type Quote struct {
 	Channel       string `json:"channel"`
-	Timestamp     string `json:"timestamp"`
 	Username      string `json:"username"`
 	Message       string `json:"message"`
-	Duration      string `json:"duration"`
+	Timestamp     string `json:"timestamp"`
 	UnixTimestamp string `json:"unix_timestamp"`
+	Duration      string `json:"duration"`
 }
 
 func getLastMessage(c echo.Context) error {
@@ -121,6 +121,44 @@ func getRandomquote(c echo.Context) error {
 	return c.JSON(http.StatusOK, quote)
 }
 
+func getGlobalRandomquote(c echo.Context) error {
+	username := c.Param("username")
+
+	rows, err := db.Query(`
+        SELECT channel, timestamp, username, message
+        FROM chatlogs AS r1 JOIN
+           (SELECT CEIL(RAND() *
+                (SELECT MAX(id) FROM chatlogs)) AS id)
+                AS r2
+        WHERE r1.id >= r2.id
+        AND username = ?
+        ORDER BY r1.id ASC
+        LIMIT 1`, username)
+	checkErr(err)
+
+	quote := new(Quote)
+
+	for rows.Next() {
+		var channel string
+		var timestamp string
+		var username string
+		var message string
+		err = rows.Scan(&channel, &timestamp, &username, &message)
+		checkErr(err)
+		quote.Channel = channel
+		quote.Timestamp = timestamp
+		quote.Username = username
+		quote.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		quote.Duration = formatDiff(diff(timeObj, time.Now()))
+		quote.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
+	}
+
+	defer rows.Close()
+	return c.JSON(http.StatusOK, quote)
+}
+
 // Logs basic logs response
 type Logs struct {
 	Messages []Msg `json:"messages"`
@@ -128,12 +166,12 @@ type Logs struct {
 
 // Msg struct to define a simple message
 type Msg struct {
-	Message       string `json:"message"`
-	Timestamp     string `json:"timestamp"`
-	Duration      string `json:"duration"`
 	Channel       string `json:"channel"`
 	Username      string `json:"username"`
+	Message       string `json:"message"`
+	Timestamp     string `json:"timestamp"`
 	UnixTimestamp string `json:"unix_timestamp"`
+	Duration      string `json:"duration"`
 }
 
 func getLogs(c echo.Context) error {

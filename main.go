@@ -36,6 +36,7 @@ func main() {
 	e := echo.New()
 	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
+	e.Get("/v1/user/:username/messages/random", getGlobalRandomquote)
 	e.Get("/v1/user/:username/messages/last", getLastGlobalMessage)
 	e.Get("/v1/user/:username/messages/last/:limit", getGlobalLogs)
 	e.Get("/v1/channel/:channel/user/:username/messages/last/:limit", getLogs)
