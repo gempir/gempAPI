@@ -11,11 +11,12 @@ import (
 
 // Quote basic response
 type Quote struct {
-	Channel   string `json:"channel"`
-	Timestamp string `json:"timestamp"`
-	Username  string `json:"username"`
-	Message   string `json:"message"`
-	Duration  string `json:"duration"`
+	Channel       string `json:"channel"`
+	Timestamp     string `json:"timestamp"`
+	Username      string `json:"username"`
+	Message       string `json:"message"`
+	Duration      string `json:"duration"`
+	UnixTimestamp string `json:"unix_timestamp"`
 }
 
 func getLastMessage(c echo.Context) error {
@@ -37,11 +38,12 @@ func getLastMessage(c echo.Context) error {
 		checkErr(err)
 		quote.Channel = channel
 		quote.Timestamp = timestamp
-		timeparsed, err := time.Parse(DateTime, timestamp)
-		checkErr(err)
-		quote.Duration = formatDiff(diff(timeparsed, time.Now()))
 		quote.Username = username
 		quote.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		quote.Duration = formatDiff(diff(timeObj, time.Now()))
+		quote.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
 	}
 
 	defer rows.Close()
@@ -65,11 +67,12 @@ func getLastGlobalMessage(c echo.Context) error {
 		checkErr(err)
 		quote.Channel = channel
 		quote.Timestamp = timestamp
-		timeparsed, err := time.Parse(DateTime, timestamp)
-		checkErr(err)
-		quote.Duration = formatDiff(diff(timeparsed, time.Now()))
 		quote.Username = username
 		quote.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		quote.Duration = formatDiff(diff(timeObj, time.Now()))
+		quote.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
 	}
 
 	defer rows.Close()
@@ -108,6 +111,10 @@ func getRandomquote(c echo.Context) error {
 		quote.Timestamp = timestamp
 		quote.Username = username
 		quote.Message = message
+		timeObj, err := time.Parse(DateTime, timestamp)
+		checkErr(err)
+		quote.Duration = formatDiff(diff(timeObj, time.Now()))
+		quote.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
 	}
 
 	defer rows.Close()
@@ -121,11 +128,12 @@ type Logs struct {
 
 // Msg struct to define a simple message
 type Msg struct {
-	Message   string `json:"message"`
-	Timestamp string `json:"timestamp"`
-	Duration  string `json:"duration"`
-	Channel   string `json:"channel"`
-	Username  string `json:"username"`
+	Message       string `json:"message"`
+	Timestamp     string `json:"timestamp"`
+	Duration      string `json:"duration"`
+	Channel       string `json:"channel"`
+	Username      string `json:"username"`
+	UnixTimestamp string `json:"unix_timestamp"`
 }
 
 func getLogs(c echo.Context) error {
@@ -167,6 +175,7 @@ func getLogs(c echo.Context) error {
 		timeObj, err := time.Parse(DateTime, timestamp)
 		checkErr(err)
 		msg.Duration = formatDiff(diff(timeObj, time.Now()))
+		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
 
 		logs.Messages = append(logs.Messages, *msg)
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -24,9 +25,10 @@ type TwitchFollowage struct {
 
 // Followage basic json for the followage reponse
 type Followage struct {
-	CreatedAt string `json:"created_at"`
-	Timestamp string `json:"timestamp"`
-	Duration  string `json:"duration"`
+	CreatedAt     string `json:"created_at"`
+	Timestamp     string `json:"timestamp"`
+	Duration      string `json:"duration"`
+	UnixTimestamp string `json:"unix_timestamp"`
 }
 
 func getFollowage(c echo.Context) error {
@@ -47,6 +49,7 @@ func getFollowage(c echo.Context) error {
 		return c.JSON(404, fail)
 	}
 	followage.Timestamp = timestamp.Format("2006-01-02 15:04:05")
+	followage.UnixTimestamp = strconv.FormatInt(timestamp.Unix(), 10)
 
 	followage.Duration = formatDiff(diff(timestamp, time.Now()))
 
