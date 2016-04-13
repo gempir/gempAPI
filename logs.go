@@ -77,7 +77,8 @@ func getLastGlobalLogs(c echo.Context) error {
 
 	logs := new(Logs)
 
-	for _,line := range lines {
+	for i := len(lines); i >= 0; i--  {
+		line := lines[i]
 		if limit == 0 {
 			break
 		}
@@ -141,7 +142,8 @@ func getLastChannelLogs(c echo.Context) error {
 
 	logs := new(Logs)
 
-	for _,line := range lines {
+	for i := len(lines); i >= 0; i--  {
+		line := lines[i]
 		if limit == 0 {
 			break
 		}
