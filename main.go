@@ -1,19 +1,15 @@
 package main
 
 import (
-	"database/sql"
 	"io/ioutil"
 	"net/http"
 	"os"
-
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/op/go-logging"
 )
 
 var (
-	db, err = sql.Open("mysql", mysql)
 	log     = logging.MustGetLogger("example")
 	format  = logging.MustStringFormatter(
 		`%{color}[%{time:2006-01-02 15:04:05}] [%{level:.4s}] %{color:reset}%{message}`,
@@ -34,12 +30,12 @@ func main() {
 	logging.SetBackend(backend1Leveled, backend2Formatter)
 
 	e := echo.New()
-	e.Get("/v1/channel/:channel/user/:username/messages/random", getRandomquote)
-	e.Get("/v1/channel/:channel/user/:username/messages/last", getLastMessage)
-	e.Get("/v1/user/:username/messages/random", getGlobalRandomquote)
-	e.Get("/v1/user/:username/messages/last", getLastGlobalMessage)
-	e.Get("/v1/user/:username/messages/last/:limit", getGlobalLogs)
-	e.Get("/v1/channel/:channel/user/:username/messages/last/:limit", getLogs)
+	e.Get("/", func(c echo.Context) error {
+        return c.String(http.StatusOK, "Hello, World!")
+    })
+	e.Get("/v1/channel/:channel/user/:username/messages/last/:limit", getLastChannelLogs)
+	e.Get("/v1/user/:username/messages/last/:limit", getLastGlobalLogs)
+	e.Get("/v1/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
 
 	log.Info("starting webserver on 1323")
