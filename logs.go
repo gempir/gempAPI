@@ -45,6 +45,7 @@ func getLastGlobalLogs(c echo.Context) error {
 		limit = 500
 	}
 	username := c.Param("username")
+	username  = strings.ToLower(username)
 	month    := time.Now().Month()
 	year     := time.Now().Year()
 
@@ -109,7 +110,9 @@ func getLastChannelLogs(c echo.Context) error {
 	}
 	channel  := c.Param("channel")
 	channel   = "#" + channel
+	channel  = strings.ToLower(channel)
 	username := c.Param("username")
+	username  = strings.ToLower(username)
 	month    := time.Now().Month()
 	year     := time.Now().Year()
 
@@ -170,6 +173,7 @@ func getLastChannelLogs(c echo.Context) error {
 
 func getRandomquote(c echo.Context) error {
 	username := c.Param("username")
+	username  = strings.ToLower(username)
 	month    := time.Now().Month()
 	year     := time.Now().Year()
 
