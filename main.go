@@ -4,13 +4,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"gopkg.in/redis.v3"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/op/go-logging"
 )
 
 var (
-	log     = logging.MustGetLogger("example")
+	rclient     *redis.Client
+	log     = logging.MustGetLogger("gempAPI")
 	format  = logging.MustStringFormatter(
 		`%{color}[%{time:2006-01-02 15:04:05}] [%{level:.4s}] %{color:reset}%{message}`,
 	)
@@ -28,6 +30,7 @@ func main() {
 	backend1Leveled := logging.AddModuleLevel(backend1)
 	backend1Leveled.SetLevel(logging.ERROR, "")
 	logging.SetBackend(backend1Leveled, backend2Formatter)
+	connectRedis()
 
 	e := echo.New()
 	e.Get("/", func(c echo.Context) error {
@@ -37,9 +40,20 @@ func main() {
 	e.Get("/v1/user/:username/messages/last/:limit", getLastGlobalLogs)
 	e.Get("/v1/user/:username/messages/random", getRandomquote)
 	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
+	e.Get("/v1/user/:username", getUser)
 
 	log.Info("starting webserver on 1323")
 	e.Run(standard.New(webserverPort))
+}
+
+func connectRedis() {
+	rclient = redis.NewClient(&redis.Options{
+        Addr:     redisaddress,
+        Password: redispass, // no password set
+        DB:       0,  // use default DB
+    })
+	pong, err := rclient.Ping().Result()
+    log.Debug(pong, err)
 }
 
 func httpRequest(url string) ([]byte, error) {

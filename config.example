@@ -3,4 +3,6 @@ package main
 const (
 	webserverPort = ":1323"
 	logsfile      = "/var/log/"
+	redisaddress   = "127.0.0.1:6379"
+	redispass      = ""
 )
