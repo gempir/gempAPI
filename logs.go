@@ -8,8 +8,10 @@ import (
 	"bufio"
 	"os"
 	"github.com/labstack/echo"
+	"compress/gzip"
 	"strings"
 	"math/rand"
+	"path/filepath"
 )
 
 // Quote basic response
@@ -66,13 +68,12 @@ func getLastGlobalLogs(c echo.Context) error {
     for scanner.Scan() {
 		line := scanner.Text()
 		lines = append(lines, line)
-
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Error(scanner.Err())
 		errJSON := new(ErrorJSON)
-		errJSON.Error = "error finding logs"
+		errJSON.Error = "error reading logs"
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 
@@ -170,25 +171,51 @@ func getLastChannelLogs(c echo.Context) error {
 	return c.JSON(http.StatusOK, logs)
 }
 
-
 func getRandomquote(c echo.Context) error {
 	username := c.Param("username")
 	username  = strings.ToLower(username)
-	month    := time.Now().Month()
-	year     := time.Now().Year()
 
-	var lines []string
+	var userlogs []string
+	var lines    []string
 
-	file := fmt.Sprintf(logsfile+"%d/%s/%s.txt", year, month, username)
-	log.Debug(file)
+ 	err := filepath.Walk(logsfile, func (path string, info os.FileInfo, err error) error {
+	    if err != nil {
+	        log.Debug(err)
+			return err
+	    }
+		if strings.Contains(path, username) {
+			userlogs = append(userlogs, path)
+		}
+		return nil
+	})
+
+	if len(userlogs) == 0 {
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error finding logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+
+	file := userlogs[rand.Intn(len(userlogs))]
+	log.Debug(file, len(userlogs))
+
 	f, err := os.Open(file)
+	defer f.Close()
 	if err != nil {
 		log.Error(err)
 		errJSON := new(ErrorJSON)
 		errJSON.Error = "error finding logs"
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
-    scanner := bufio.NewScanner(f)
+	scanner := bufio.NewScanner(f)
+
+	if strings.HasSuffix(file, ".gz") {
+		gz, err := gzip.NewReader(f)
+		scanner = bufio.NewScanner(gz)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
 
     for scanner.Scan() {
 		line := scanner.Text()
