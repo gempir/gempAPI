@@ -11,8 +11,12 @@ import (
 	"compress/gzip"
 	"strings"
 	"math/rand"
-	"path/filepath"
 )
+var (
+	gYears  = [3]string {"2015", "2016", "2017"}
+	gMonths = [12]string {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
+)
+
 
 // Quote basic response
 type Quote struct {
@@ -178,17 +182,16 @@ func getRandomquote(c echo.Context) error {
 	var userlogs []string
 	var lines    []string
 
- 	err := filepath.Walk(logsfile, func (path string, info os.FileInfo, err error) error {
-	    if err != nil {
-	        log.Debug(err)
-			return err
-	    }
-		if strings.Contains(path, username + ".txt") {
-			userlogs = append(userlogs, path)
+	for _, year := range gYears {
+		for _, month := range gMonths {
+			path := fmt.Sprintf("%s%s/%s/%s.txt", logsfile, year, month, username)
+			if _, err := os.Stat(path); err == nil {
+				userlogs = append(userlogs, path)
+			} else if _, err := os.Stat(path + ".gz"); err == nil {
+				userlogs = append(userlogs, path)
+			}
 		}
-		return nil
-	})
-
+	}
 	if len(userlogs) == 0 {
 		errJSON := new(ErrorJSON)
 		errJSON.Error = "error finding logs"
