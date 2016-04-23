@@ -183,7 +183,7 @@ func getRandomquote(c echo.Context) error {
 	        log.Debug(err)
 			return err
 	    }
-		if strings.Contains(path, username) {
+		if strings.Contains(path, username + ".txt") {
 			userlogs = append(userlogs, path)
 		}
 		return nil
