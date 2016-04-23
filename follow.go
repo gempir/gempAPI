@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"io/ioutil"
 
 	"github.com/labstack/echo"
 )
@@ -55,6 +56,22 @@ func getFollowage(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, followage)
 }
+
+func httpRequest(url string) ([]byte, error) {
+	log.Debugf("httpRequest %s", url)
+	response, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	contents, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	return contents, nil
+}
+
 func formatDiff(years, months, days, hours, mins, secs int) string {
 	since := ""
 	if years > 0 {

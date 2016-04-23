@@ -101,6 +101,56 @@ func getLastGlobalLogs(c echo.Context) error {
 	return c.JSON(http.StatusOK, logs)
 }
 
+func getDatedChannelLogs(c echo.Context) error {
+	year := c.Param("year")
+	month := strings.ToLower(c.Param("month"))
+	username := strings.ToLower(c.Param("username"))
+
+	file := fmt.Sprintf(logsfile + "%s/%s/%s.txt", year, month, username)
+	var lines []string
+
+	log.Debug(file)
+	f, err := os.Open(file)
+	if err != nil {
+		log.Error(err)
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error finding logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Error(scanner.Err())
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error reading logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+
+	logs := new(Logs)
+
+	for i := len(lines)-1; i >= 0; i--  {
+		line := lines[i]
+		split := strings.Split(line, "[|]")
+		msg := new(Msg)
+		msg.Timestamp = split[0]
+		msg.Channel = split[1]
+		msg.Username = split[2]
+		msg.Message = split[3]
+		timeObj, err := time.Parse(DateTime, msg.Timestamp)
+		checkErr(err)
+		msg.Duration = formatDiff(diff(timeObj, time.Now()))
+		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
+		logs.Messages = append(logs.Messages, *msg)
+	}
+
+	return c.JSON(http.StatusOK, logs)
+}
+
 
 func getLastChannelLogs(c echo.Context) error {
 	limit, err    := strconv.Atoi(c.Param("limit"))
@@ -252,4 +302,11 @@ func getRandomquote(c echo.Context) error {
 	logs.Messages = append(logs.Messages, *msg)
 
 	return c.JSON(http.StatusOK, logs)
+}
+
+
+func checkErr(err error) {
+	if err != nil {
+		log.Error(err)
+	}
 }

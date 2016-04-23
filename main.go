@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
 	"os"
 	"gopkg.in/redis.v3"
@@ -30,49 +29,25 @@ func main() {
 	backend1Leveled := logging.AddModuleLevel(backend1)
 	backend1Leveled.SetLevel(logging.ERROR, "")
 	logging.SetBackend(backend1Leveled, backend2Formatter)
-	connectRedis()
 
-	e := echo.New()
-	e.Get("/", func(c echo.Context) error {
-        return c.String(http.StatusOK, "Hello, World!")
-    })
-	e.Get("/v1/channel/:channel/user/:username/messages/last/:limit", getLastChannelLogs)
-	e.Get("/v1/user/:username/messages/last/:limit", getLastGlobalLogs)
-	e.Get("/v1/user/:username/messages/random", getRandomquote)
-	e.Get("/v1/twitch/followage/channel/:channel/user/:username", getFollowage)
-	e.Get("/v1/user/:username", getUser)
-
-	log.Info("starting webserver on 1323")
-	e.Run(standard.New(webserverPort))
-}
-
-func connectRedis() {
 	rclient = redis.NewClient(&redis.Options{
         Addr:     redisaddress,
         Password: redispass, // no password set
         DB:       0,  // use default DB
     })
-	pong, err := rclient.Ping().Result()
-    log.Debug(pong, err)
-}
 
-func httpRequest(url string) ([]byte, error) {
-	log.Debugf("httpRequest %s", url)
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-	contents, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Error(err)
-		return nil, err
-	}
-	return contents, nil
-}
 
-func checkErr(err error) {
-	if err != nil {
-		log.Error(err)
-	}
+	e := echo.New()
+	e.Get("/", func(c echo.Context) error {
+        return c.String(http.StatusOK, "Hello, World!")
+    })
+	e.Get("/channel/:channel/user/:username/messages/last/:limit", getLastChannelLogs)
+	e.Get("/user/:username/messages/last/:limit", getLastGlobalLogs)
+	e.Get("/user/:username/messages/year/:year/month/:month", getDatedChannelLogs)
+	e.Get("/user/:username/messages/random", getRandomquote)
+	e.Get("/user/:username", getUser)
+	e.Get("/twitch/followage/channel/:channel/user/:username", getFollowage)
+
+	log.Info("starting webserver on 1323")
+	e.Run(standard.New(webserverPort))
 }
