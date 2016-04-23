@@ -11,12 +11,8 @@ import (
 	"compress/gzip"
 	"strings"
 	"math/rand"
+	"io/ioutil"
 )
-var (
-	gYears  = [3]string {"2015", "2016", "2017"}
-	gMonths = [12]string {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"}
-)
-
 
 // Quote basic response
 type Quote struct {
@@ -182,8 +178,12 @@ func getRandomquote(c echo.Context) error {
 	var userlogs []string
 	var lines    []string
 
-	for _, year := range gYears {
-		for _, month := range gMonths {
+	years, _ := ioutil.ReadDir(logsfile)
+    for _, yearDir := range years {
+		year := yearDir.Name()
+        months, _ := ioutil.ReadDir(logsfile + year + "/")
+		for _, monthDir := range months {
+			month := monthDir.Name()
 			path := fmt.Sprintf("%s%s/%s/%s.txt", logsfile, year, month, username)
 			if _, err := os.Stat(path); err == nil {
 				userlogs = append(userlogs, path)
@@ -191,7 +191,8 @@ func getRandomquote(c echo.Context) error {
 				userlogs = append(userlogs, path)
 			}
 		}
-	}
+    }
+
 	if len(userlogs) == 0 {
 		errJSON := new(ErrorJSON)
 		errJSON.Error = "error finding logs"
