@@ -103,7 +103,7 @@ func getLastGlobalLogs(c echo.Context) error {
 
 func getDatedChannelLogs(c echo.Context) error {
 	year := c.Param("year")
-	month := strings.ToLower(c.Param("month"))
+	month := strings.Title(c.Param("month"))
 	username := strings.ToLower(c.Param("username"))
 
 	file := fmt.Sprintf(logsfile + "%s/%s/%s.txt", year, month, username)
