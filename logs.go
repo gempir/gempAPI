@@ -41,11 +41,11 @@ type Msg struct {
 
 func getDatedChannelLogs(c echo.Context) error {
 	channel := strings.ToLower(c.Param("channel"))
-	channel := strings.Trim(channel)
+	channel := strings.TrimSpace(channel)
 	year := c.Param("year")
 	month := strings.Title(c.Param("month"))
 	username := c.Param("username")
-	username = strings.ToLower(strings.Trim(username))
+	username = strings.ToLower(strings.TrimSpace(username))
 
 	file := fmt.Sprintf(logsfile+"%s/%s/%s/%s.txt", channel, year, month, username)
 	log.Debug(file)
@@ -62,9 +62,9 @@ func getLastChannelLogs(c echo.Context) error {
 	}
 	channel := c.Param("channel")
 	channel = strings.ToLower(channel)
-	channel := strings.Trim(channel)
+	channel := strings.TrimSpace(channel)
 	username := c.Param("username")
-	username = strings.ToLower(strings.Trim(username))
+	username = strings.ToLower(strings.TrimSpace(username))
 	month := time.Now().Month()
 	year := time.Now().Year()
 
@@ -110,7 +110,7 @@ func getLastChannelLogs(c echo.Context) error {
 
 func getLastMessage(c echo.Context) error {
 	username := c.Param("username")
-	username = strings.ToLower(strings.Trim(username))
+	username = strings.ToLower(strings.TrimSpace(username))
 	results, err := rclient.HGet("lastmessage", username).Result()
 	if err != nil {
 		log.Error(err)
@@ -141,9 +141,9 @@ func getLastMessage(c echo.Context) error {
 
 func getRandomquote(c echo.Context) error {
 	username := c.Param("username")
-	username = strings.ToLower(strings.Trim(username))
+	username = strings.ToLower(strings.TrimSpace(username))
 	channel := strings.ToLower(c.Param("channel"))
-	channel := strings.Trim(channel)
+	channel := strings.TrimSpace(channel)
 
 	var userlogs []string
 	var lines []string
