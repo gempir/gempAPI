@@ -1,16 +1,16 @@
 package main
 
 import (
-	"net/http"
-	"os"
-	"gopkg.in/redis.v3"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/op/go-logging"
+	"gopkg.in/redis.v3"
+	"net/http"
+	"os"
 )
 
 var (
-	rclient     *redis.Client
+	rclient *redis.Client
 	log     = logging.MustGetLogger("gempAPI")
 	format  = logging.MustStringFormatter(
 		`%{color}[%{time:2006-01-02 15:04:05}] [%{level:.4s}] %{color:reset}%{message}`,
@@ -31,17 +31,17 @@ func main() {
 	logging.SetBackend(backend1Leveled, backend2Formatter)
 
 	rclient = redis.NewClient(&redis.Options{
-        Addr:     redisaddress,
-        Password: redispass, // no password set
-        DB:       0,  // use default DB
-    })
-
+		Addr:     redisaddress,
+		Password: redispass, // no password set
+		DB:       0,         // use default DB
+	})
 
 	e := echo.New()
 	e.Get("/", func(c echo.Context) error {
-        return c.String(http.StatusOK, "Hello, World!")
-    })
+		return c.String(http.StatusOK, "Hello, World!")
+	})
 	e.Get("/channel/:channel/user/:username/last/:limit", getLastChannelLogs)
+	e.Get("/user/:username/last", getLastMessage)
 	e.Get("/channel/:channel/user/:username/:year/:month", getDatedChannelLogs)
 	e.Get("/channel/:channel/user/:username/random", getRandomquote)
 	e.Get("/user/:username", getUser)

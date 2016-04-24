@@ -105,6 +105,36 @@ func getLastChannelLogs(c echo.Context) error {
 	return c.String(http.StatusOK, txt)
 }
 
+func getLastMessage(c echo.Context) error {
+	username := c.Param("username")
+	results, err := rclient.HGet("lastmessage", username).Result()
+	if err != nil {
+		log.Error(err)
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error finding logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+
+	split := strings.Split(results, "[|]")
+
+	msg := new(Msg)
+	msg.Channel = split[1]
+	msg.Timestamp = split[0]
+	msg.Username = split[2]
+	msg.Message = split[3]
+
+	timeObj, err := time.Parse(DateTime, msg.Timestamp)
+
+	checkErr(err)
+
+	msg.Duration = formatDiff(diff(timeObj, time.Now()))
+
+	msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
+
+	return c.JSON(http.StatusOK, msg)
+
+}
+
 func getRandomquote(c echo.Context) error {
 	username := c.Param("username")
 	username = strings.ToLower(username)
