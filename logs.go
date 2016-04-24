@@ -41,7 +41,7 @@ type Msg struct {
 
 func getDatedChannelLogs(c echo.Context) error {
 	channel := strings.ToLower(c.Param("channel"))
-	channel := strings.TrimSpace(channel)
+	channel = strings.TrimSpace(channel)
 	year := c.Param("year")
 	month := strings.Title(c.Param("month"))
 	username := c.Param("username")
@@ -62,7 +62,7 @@ func getLastChannelLogs(c echo.Context) error {
 	}
 	channel := c.Param("channel")
 	channel = strings.ToLower(channel)
-	channel := strings.TrimSpace(channel)
+	channel = strings.TrimSpace(channel)
 	username := c.Param("username")
 	username = strings.ToLower(strings.TrimSpace(username))
 	month := time.Now().Month()
@@ -143,7 +143,7 @@ func getRandomquote(c echo.Context) error {
 	username := c.Param("username")
 	username = strings.ToLower(strings.TrimSpace(username))
 	channel := strings.ToLower(c.Param("channel"))
-	channel := strings.TrimSpace(channel)
+	channel = strings.TrimSpace(channel)
 
 	var userlogs []string
 	var lines []string
