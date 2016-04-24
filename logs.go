@@ -111,7 +111,7 @@ func getLastChannelLogs(c echo.Context) error {
 func getLastMessage(c echo.Context) error {
 	username := c.Param("username")
 	username = strings.ToLower(strings.TrimSpace(username))
-	results, err := rclient.HGet("lastmessage", username).Result()
+	results, err := rclient.HGet("user:lastmessage", username).Result()
 	if err != nil {
 		log.Error(err)
 		errJSON := new(ErrorJSON)
