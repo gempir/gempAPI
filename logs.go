@@ -77,7 +77,7 @@ func getLastGlobalLogs(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 
-	logs := new(Logs)
+	txt := ""
 
 	for i := len(lines)-1; i >= 0; i--  {
 		line := lines[i]
@@ -85,20 +85,14 @@ func getLastGlobalLogs(c echo.Context) error {
 			break
 		}
 		split := strings.Split(line, "[|]")
-		msg := new(Msg)
-		msg.Timestamp = split[0]
-		msg.Channel = split[1]
-		msg.Username = split[2]
-		msg.Message = split[3]
-		timeObj, err := time.Parse(DateTime, msg.Timestamp)
-		checkErr(err)
-		msg.Duration = formatDiff(diff(timeObj, time.Now()))
-		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
-		logs.Messages = append(logs.Messages, *msg)
+ 		txt += "[" + split[0] + " UTC] "
+		txt += "[" + split[1] + "] "
+		txt += split[2] + ": "
+		txt += split[3] + "\r\n"
 		limit--
 	}
 
-	return c.JSON(http.StatusOK, logs)
+	return c.String(http.StatusOK, txt)
 }
 
 func getDatedChannelLogs(c echo.Context) error {
@@ -131,24 +125,18 @@ func getDatedChannelLogs(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 
-	logs := new(Logs)
+	txt := ""
 
 	for i := len(lines)-1; i >= 0; i--  {
 		line := lines[i]
 		split := strings.Split(line, "[|]")
-		msg := new(Msg)
-		msg.Timestamp = split[0]
-		msg.Channel = split[1]
-		msg.Username = split[2]
-		msg.Message = split[3]
-		timeObj, err := time.Parse(DateTime, msg.Timestamp)
-		checkErr(err)
-		msg.Duration = formatDiff(diff(timeObj, time.Now()))
-		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
-		logs.Messages = append(logs.Messages, *msg)
+		txt += "[" + split[0] + " UTC] "
+		txt += "[" + split[1] + "] "
+		txt += split[2] + ": "
+		txt += split[3] + "\r\n"
 	}
 
-	return c.JSON(http.StatusOK, logs)
+	return c.String(http.StatusOK, txt)
 }
 
 
@@ -194,7 +182,7 @@ func getLastChannelLogs(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 
-	logs := new(Logs)
+	txt := ""
 
 	for i := len(lines)-1; i >= 0; i--  {
 		line := lines[i]
@@ -205,20 +193,14 @@ func getLastChannelLogs(c echo.Context) error {
 		if split[1] != channel {
 			continue
 		}
-		msg := new(Msg)
-		msg.Channel = split[1]
-		msg.Timestamp = split[0]
-		msg.Username = split[2]
-		msg.Message = split[3]
-		timeObj, err := time.Parse(DateTime, msg.Timestamp)
-		checkErr(err)
-		msg.Duration = formatDiff(diff(timeObj, time.Now()))
-		msg.UnixTimestamp = strconv.FormatInt(timeObj.Unix(), 10)
-		logs.Messages = append(logs.Messages, *msg)
+		txt += "[" + split[0] + " UTC] "
+		txt += "[" + split[1] + "] "
+		txt += split[2] + ": "
+		txt += split[3] + "\r\n"
 		limit--
 	}
 
-	return c.JSON(http.StatusOK, logs)
+	return c.String(http.StatusOK, txt)
 }
 
 func getRandomquote(c echo.Context) error {
