@@ -158,7 +158,7 @@ func getRandomquote(c echo.Context) error {
 		}
 	}
 
-	if len(userlogs) == 0 {
+	if len(userlogs) < 1 {
 		errJSON := new(ErrorJSON)
 		errJSON.Error = "error finding logs"
 		return c.JSON(http.StatusNotFound, errJSON)
@@ -197,6 +197,12 @@ func getRandomquote(c echo.Context) error {
 		errJSON.Error = "error finding logs"
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
+	if len(lines) < 1 {
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error finding logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+
 	ranNum := rand.Intn(len(lines) - 1)
 	line := lines[ranNum]
 	log.Debug(line)
