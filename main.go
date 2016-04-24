@@ -41,9 +41,10 @@ func main() {
 	e.Get("/", func(c echo.Context) error {
         return c.String(http.StatusOK, "Hello, World!")
     })
-	e.Get("/channel/:channel/user/:username/messages/last/:limit", getLastChannelLogs)
-	e.Get("/user/:username/messages/last/:limit", getLastGlobalLogs)
-	e.Get("/user/:username/messages/year/:year/month/:month", getDatedChannelLogs)
+	e.Get("/channel/:channel/user/:username/last/:limit", getLastChannelLogs)
+	e.Get("/user/:username/last/:limit", getLastGlobalLogs)
+	e.Get("/user/:username/:year/:month", getDatedGlobalLogs)
+	e.Get("/channel/:channel/user/:username/:year/:month", getDatedChannelLogs)
 	e.Get("/user/:username/messages/random", getRandomquote)
 	e.Get("/user/:username", getUser)
 	e.Get("/twitch/followage/channel/:channel/user/:username", getFollowage)

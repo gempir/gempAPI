@@ -95,7 +95,7 @@ func getLastGlobalLogs(c echo.Context) error {
 	return c.String(http.StatusOK, txt)
 }
 
-func getDatedChannelLogs(c echo.Context) error {
+func getDatedGlobalLogs(c echo.Context) error {
 	year := c.Param("year")
 	month := strings.Title(c.Param("month"))
 	username := strings.ToLower(c.Param("username"))
@@ -112,6 +112,14 @@ func getDatedChannelLogs(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 	scanner := bufio.NewScanner(f)
+
+	if strings.HasSuffix(file, ".gz") {
+		gz, err := gzip.NewReader(f)
+		scanner = bufio.NewScanner(gz)
+		if err != nil {
+			log.Error(err)
+		}
+	}
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -132,6 +140,61 @@ func getDatedChannelLogs(c echo.Context) error {
 		split := strings.Split(line, "[|]")
 		txt += "[" + split[0] + " UTC] "
 		txt += "[" + split[1] + "] "
+		txt += split[2] + ": "
+		txt += split[3] + "\r\n"
+	}
+
+	return c.String(http.StatusOK, txt)
+}
+
+func getDatedChannelLogs(c echo.Context) error {
+	channel := "#" + strings.ToLower(c.Param("channel"))
+	year := c.Param("year")
+	month := strings.Title(c.Param("month"))
+	username := strings.ToLower(c.Param("username"))
+
+	file := fmt.Sprintf(logsfile + "%s/%s/%s.txt", year, month, username)
+	var lines []string
+
+	log.Debug(file)
+	f, err := os.Open(file)
+	if err != nil {
+		log.Error(err)
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error finding logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+	scanner := bufio.NewScanner(f)
+
+	if strings.HasSuffix(file, ".gz") {
+		gz, err := gzip.NewReader(f)
+		scanner = bufio.NewScanner(gz)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Error(scanner.Err())
+		errJSON := new(ErrorJSON)
+		errJSON.Error = "error reading logs"
+		return c.JSON(http.StatusNotFound, errJSON)
+	}
+
+	txt := ""
+
+	for i := len(lines)-1; i >= 0; i--  {
+		line := lines[i]
+		split := strings.Split(line, "[|]")
+		if split[1] != channel {
+			continue
+		}
+		txt += "[" + split[0] + " UTC] "
 		txt += split[2] + ": "
 		txt += split[3] + "\r\n"
 	}
