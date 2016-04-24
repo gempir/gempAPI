@@ -116,7 +116,7 @@ func getRandomquote(c echo.Context) error {
 	years, _ := ioutil.ReadDir(logsfile + channel)
 	for _, yearDir := range years {
 		year := yearDir.Name()
-		months, _ := ioutil.ReadDir(logsfile + year + "/")
+		months, _ := ioutil.ReadDir(logsfile + channel + "/" + year + "/")
 		for _, monthDir := range months {
 			month := monthDir.Name()
 			path := fmt.Sprintf("%s%s/%s/%s/%s.txt", logsfile, channel, year, month, username)
