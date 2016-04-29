@@ -47,64 +47,15 @@ func getDatedChannelLogs(c echo.Context) error {
 	username := c.Param("username")
 	username = strings.ToLower(strings.TrimSpace(username))
 
+	if year == "" || month == "" {
+		year = strconv.Itoa(time.Now().Year())
+		month = time.Now().Month().String()
+	}
+
 	file := fmt.Sprintf(logsfile+"%s/%s/%s/%s.txt", channel, year, month, username)
 	log.Debug(file)
 
 	return c.File(file)
-}
-
-func getLastChannelLogs(c echo.Context) error {
-	limit, err := strconv.Atoi(c.Param("limit"))
-	if err != nil {
-		limit = 1
-	} else if limit > 500 {
-		limit = 500
-	}
-	channel := c.Param("channel")
-	channel = strings.ToLower(channel)
-	channel = strings.TrimSpace(channel)
-	username := c.Param("username")
-	username = strings.ToLower(strings.TrimSpace(username))
-	month := time.Now().Month()
-	year := time.Now().Year()
-
-	var lines []string
-
-	file := fmt.Sprintf(logsfile+"%s/%d/%s/%s.txt", channel, year, month, username)
-	log.Debug(file)
-	f, err := os.Open(file)
-	if err != nil {
-		log.Error(err)
-		errJSON := new(ErrorJSON)
-		errJSON.Error = "error finding logs"
-		return c.JSON(http.StatusNotFound, errJSON)
-	}
-	scanner := bufio.NewScanner(f)
-
-	for scanner.Scan() {
-		line := scanner.Text()
-		lines = append(lines, line)
-	}
-
-	if err := scanner.Err(); err != nil {
-		log.Error(scanner.Err())
-		errJSON := new(ErrorJSON)
-		errJSON.Error = "error finding logs"
-		return c.JSON(http.StatusNotFound, errJSON)
-	}
-
-	txt := ""
-
-	for i := 0; i < len(lines); i++ {
-		line := lines[i]
-		if limit == 0 {
-			break
-		}
-		txt += line + "\r\n"
-		limit--
-	}
-
-	return c.String(http.StatusOK, txt)
 }
 
 func getLastMessage(c echo.Context) error {
