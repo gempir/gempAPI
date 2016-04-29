@@ -84,7 +84,6 @@ func getLastChannelLogs(c echo.Context) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		lines = append(lines, line)
-
 	}
 
 	if err := scanner.Err(); err != nil {
@@ -96,7 +95,7 @@ func getLastChannelLogs(c echo.Context) error {
 
 	txt := ""
 
-	for i := len(lines) - 1; i >= 0; i-- {
+	for i := 0; i < len(lines); i++ {
 		line := lines[i]
 		if limit == 0 {
 			break
