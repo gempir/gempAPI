@@ -41,7 +41,7 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 	e.Get("/user/:username/last", getLastMessage)
-	e.Get("/channel/:channel/user/:username", getDatedChannelLogs)
+	e.Get("/channel/:channel/user/:username", getCurrentChanneLogs)
 	e.Get("/channel/:channel/user/:username/:year/:month", getDatedChannelLogs)
 	e.Get("/channel/:channel/user/:username/random", getRandomquote)
 	e.Get("/user/:username", getUser)

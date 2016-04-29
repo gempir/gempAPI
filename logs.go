@@ -39,6 +39,18 @@ type Msg struct {
 	Duration      string `json:"duration"`
 }
 
+func getCurrentChanneLogs(c echo.Context) error {
+	channel := strings.ToLower(c.Param("channel"))
+	channel = strings.TrimSpace(channel)
+	year    := strconv.Itoa(time.Now().Year())
+	month   := time.Now().Month().String()
+	username := c.Param("username")
+	username = strings.ToLower(strings.TrimSpace(username))
+
+	redirectURL := fmt.Sprintf("/channel/%s/user/%s/%s/%s", channel, username, year, month)
+	return c.Redirect(303, redirectURL)
+}
+
 func getDatedChannelLogs(c echo.Context) error {
 	channel := strings.ToLower(c.Param("channel"))
 	channel = strings.TrimSpace(channel)
