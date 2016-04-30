@@ -14,21 +14,6 @@ import (
 	"time"
 )
 
-// Quote basic response
-type Quote struct {
-	Channel       string `json:"channel"`
-	Username      string `json:"username"`
-	Message       string `json:"message"`
-	Timestamp     string `json:"timestamp"`
-	UnixTimestamp string `json:"unix_timestamp"`
-	Duration      string `json:"duration"`
-}
-
-// Logs basic logs response
-type Logs struct {
-	Messages []Msg `json:"messages"`
-}
-
 // Msg struct to define a simple message
 type Msg struct {
 	Channel       string `json:"channel"`
@@ -124,7 +109,6 @@ func getRandomquote(c echo.Context) error {
 			}
 		}
 	}
-
 	if len(userlogs) < 1 {
 		errJSON := new(ErrorJSON)
 		errJSON.Error = "error finding logs"
@@ -170,7 +154,7 @@ func getRandomquote(c echo.Context) error {
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 
-	ranNum := rand.Intn(len(lines) - 1)
+	ranNum := rand.Intn(len(lines))
 	line := lines[ranNum]
 	log.Debug(line)
 	lineSplit := strings.SplitN(line, "]", 2)
