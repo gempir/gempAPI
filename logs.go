@@ -49,10 +49,38 @@ func getDatedChannelLogs(c echo.Context) error {
 		month = time.Now().Month().String()
 	}
 
-	file := fmt.Sprintf(logsfile+"%s/%s/%s/%s.txt", channel, year, month, username)
-	log.Debug(file)
+	content := ""
 
-	return c.File(file)
+	file := fmt.Sprintf(logsfile+"%s/%s/%s/%s.txt", channel, year, month, username)
+ 	if _, err := os.Stat(file + ".gz"); err == nil {
+		file = file + ".gz"
+		f, err := os.Open(file)
+		if err != nil {
+			log.Error(err)
+			errJSON := new(ErrorJSON)
+			errJSON.Error = "error finding logs"
+			return c.JSON(http.StatusNotFound, errJSON)
+		}
+		gz, err := gzip.NewReader(f)
+		scanner := bufio.NewScanner(gz)
+		if err != nil {
+			log.Error(err)
+			errJSON := new(ErrorJSON)
+			errJSON.Error = "error finding logs"
+			return c.JSON(http.StatusNotFound, errJSON)
+		}
+
+		for scanner.Scan() {
+			line := scanner.Text()
+			content += line + "\r\n"
+		}
+		log.Debug(file)
+		return c.String(http.StatusOK, content)
+	} else {
+		log.Debug(file)
+		return c.File(file)
+	}
+
 }
 
 func getLastMessage(c echo.Context) error {
@@ -140,7 +168,6 @@ func getRandomquote(c echo.Context) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		lines = append(lines, line)
-
 	}
 
 	if err := scanner.Err(); err != nil {
