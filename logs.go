@@ -97,8 +97,8 @@ func getLastMessage(c echo.Context) error {
 	split := strings.Split(results, "[|]")
 
 	msg := new(Msg)
-	msg.Channel = split[1]
 	msg.Timestamp = split[0]
+	msg.Channel = "#" + split[1]
 	msg.Username = split[2]
 	msg.Message = split[3]
 
