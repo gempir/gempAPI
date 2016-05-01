@@ -36,6 +36,8 @@ func main() {
 		DB:       0,         // use default DB
 	})
 
+	channel := NewChannel()
+
 	e := echo.New()
 	e.Get("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
@@ -46,6 +48,9 @@ func main() {
 	e.Get("/channel/:channel/user/:username/random", getRandomquote)
 	e.Get("/user/:username", getUser)
 	e.Get("/twitch/followage/channel/:channel/user/:username", getFollowage)
+	e.Get("/channel/:channel/commands", channel.getCommands)
+	e.Get("/channel/:channel/levels", channel.getLevels)
+	e.Get("/channel/:channel/oddshots", channel.getOddshots)
 
 	log.Info("starting webserver on 1323")
 	e.Run(standard.New(webserverPort))
