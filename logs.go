@@ -87,6 +87,9 @@ func getLastMessage(c echo.Context) error {
 }
 
 func getRandomquote(c echo.Context) error {
+	errJSON := new(ErrorJSON)
+	errJSON.Error = "error finding logs"
+
 	username := c.Param("username")
 	username = strings.ToLower(strings.TrimSpace(username))
 	channel := strings.ToLower(c.Param("channel"))
@@ -105,7 +108,7 @@ func getRandomquote(c echo.Context) error {
 			if _, err := os.Stat(path); err == nil {
 				userlogs = append(userlogs, path)
 			} else if _, err := os.Stat(path + ".gz"); err == nil {
-				userlogs = append(userlogs, path)
+				userlogs = append(userlogs, path + ".gz")
 			}
 		}
 	}
@@ -122,8 +125,6 @@ func getRandomquote(c echo.Context) error {
 	defer f.Close()
 	if err != nil {
 		log.Error(err)
-		errJSON := new(ErrorJSON)
-		errJSON.Error = "error finding logs"
 		return c.JSON(http.StatusNotFound, errJSON)
 	}
 	scanner := bufio.NewScanner(f)
