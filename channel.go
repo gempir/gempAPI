@@ -100,7 +100,7 @@ func (channel *Channel) getOddshots(c echo.Context) error {
 		return c.String(http.StatusNotFound, "not found")
 	}
     shots := new(Oddshots)
-    for timestamp, shot := range results {
+    for shot, timestamp := range results {
         oddshot := new(Oddshot)
         oddshot.Link = shot
         oddshot.Unixtimestamp, err = strconv.Atoi(timestamp)
