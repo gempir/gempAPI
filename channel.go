@@ -5,6 +5,7 @@ import (
 	"net/http"
     "encoding/json"
     "strconv"
+    "strings"
 )
 
 type Channel struct {
@@ -101,6 +102,7 @@ func (channel *Channel) getOddshots(c echo.Context) error {
 	}
     shots := new(Oddshots)
     for shot, timestamp := range results {
+        timestamp = strings.TrimSpace(timestamp)
         oddshot := new(Oddshot)
         oddshot.Link = shot
         oddshot.Unixtimestamp, err = strconv.Atoi(timestamp)
