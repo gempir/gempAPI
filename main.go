@@ -1,12 +1,13 @@
 package main
 
 import (
+	"net/http"
+	"os"
+
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/engine/standard"
 	"github.com/op/go-logging"
 	"gopkg.in/redis.v3"
-	"net/http"
-	"os"
 )
 
 var (
@@ -50,7 +51,6 @@ func main() {
 	e.Get("/twitch/followage/channel/:channel/user/:username", getFollowage)
 	e.Get("/channel/:channel/commands", channel.getCommands)
 	e.Get("/channel/:channel/levels", channel.getLevels)
-	e.Get("/channel/:channel/oddshots", channel.getOddshots)
 
 	log.Info("starting webserver on 1323")
 	e.Run(standard.New(webserverPort))
