@@ -52,5 +52,5 @@ func main() {
 	e.GET("/channel/:channel/levels", channel.getLevels)
 
 	log.Info("starting webserver on 1323")
-	e.Run(standard.New(webserverPort))
+	e.Logger.Fatal(e.Start(webserverPort))
 }
