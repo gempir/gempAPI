@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/engine/standard"
 	"github.com/op/go-logging"
 	"gopkg.in/redis.v3"
 )
@@ -40,17 +39,17 @@ func main() {
 	channel := NewChannel()
 
 	e := echo.New()
-	e.Get("/", func(c echo.Context) error {
+	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
-	e.Get("/user/:username/last", getLastMessage)
-	e.Get("/channel/:channel/user/:username", getCurrentChanneLogs)
-	e.Get("/channel/:channel/user/:username/:year/:month", getDatedChannelLogs)
-	e.Get("/channel/:channel/user/:username/random", getRandomquote)
-	e.Get("/user/:username", getUser)
-	e.Get("/twitch/followage/channel/:channel/user/:username", getFollowage)
-	e.Get("/channel/:channel/commands", channel.getCommands)
-	e.Get("/channel/:channel/levels", channel.getLevels)
+	e.GET("/user/:username/last", getLastMessage)
+	e.GET("/channel/:channel/user/:username", getCurrentChanneLogs)
+	e.GET("/channel/:channel/user/:username/:year/:month", getDatedChannelLogs)
+	e.GET("/channel/:channel/user/:username/random", getRandomquote)
+	e.GET("/user/:username", getUser)
+	e.GET("/twitch/followage/channel/:channel/user/:username", getFollowage)
+	e.GET("/channel/:channel/commands", channel.getCommands)
+	e.GET("/channel/:channel/levels", channel.getLevels)
 
 	log.Info("starting webserver on 1323")
 	e.Run(standard.New(webserverPort))
